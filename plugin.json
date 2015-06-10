@@ -1,0 +1,28 @@
+{
+    "label": {
+        "de": "Stripe",
+        "en": "Stripe"
+    },
+    "copyright": "(c) by shopware AG",
+    "license": "MIT",
+    "link": "http://store.shopware.com",
+    "author": "shopware AG",
+
+    "currentVersion": "1.0.0",
+
+    "changelog": {
+        "de": {
+            "1.0.0": "PT-2396 - Erstveröffentlichung"
+        },
+        "en": {
+            "1.0.0": "PT-2396 - First release"
+        }
+    },
+
+    "compatibility": {
+        "minimumVersion": "5.0.0",
+        "maximumVersion": null,
+        "blacklist": [
+        ]
+    }
+}

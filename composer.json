@@ -1,0 +1,18 @@
+{
+  "name": "shopware/plugin-stripe",
+  "description": "",
+  "keywords": ["shopware", "stripe"],
+  "homepage": "http://www.shopware.com",
+  "type": "project",
+  "license": [
+    "MIT"
+  ],
+  "require": {
+    "stripe/stripe-php": "2.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Shopware\\SwagPaymentStripe\\": ""
+    }
+  }
+}

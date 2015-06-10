@@ -1,0 +1,23 @@
+.stripe {
+  input[type="number"], input[type="text"] {
+    max-width: 100%;
+    display: block;
+  }
+  .cvc--label, .expiration--label {
+    display: block;
+  }
+  input.exp--input {
+    .unitize-width(140);
+    max-width: 47%;
+    display: inline-block;
+  }
+  .create-account--label {
+    float:none; width:100%; display:inline
+  }
+  .alert {
+    .unitize(margin-bottom, 10);
+    .alert--content {
+      display: none;
+    }
+  }
+}
