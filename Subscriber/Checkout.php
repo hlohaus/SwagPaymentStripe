@@ -45,31 +45,35 @@ class Checkout implements SubscriberInterface
         $action = $args->getSubject();
         $request = $action->Request();
         $db = $this->bootstrap->get('db');
+
         $token = $request->getPost('stripeToken');
         if (empty($token)) {
             return;
         }
 
-        if ($request->getActionName() == 'saveShippingPayment' || $request->getActionName() == 'savePayment') {
-            if ($request->getPost('stripeCreateAccount')) {
-                $sql = 'SELECT firstname, lastname, customernumber FROM s_user_billingaddress WHERE userID = ?';
-                $customer = $db->fetchRow($sql, array($this->session->sUserId));
-                $customer = \Stripe\Customer::create(array(
-                    "source" => $token,
-                    "email" => $this->session->sUserMail,
-                    "description" => implode(' ', $customer)
-                ));
-                $customerId = $customer->id;
-            } else {
-                $this->session->stripeToken = $token;
-                $customerId = $customer = null;
-            }
-            $db->update(
-                's_user_attributes',
-                array('viison_stripe_customer_id' => $customerId),
-                'userID =' .(int)$this->session->sUserId
-            );
+        if ($request->getPost('stripeCreateAccount')) {
+            $apiKey = $this->bootstrap->Config()->get('stripeSecretKey');
+            \Stripe\Stripe::setApiKey($apiKey);
+
+            $sql = 'SELECT firstname, lastname, customernumber FROM s_user_billingaddress WHERE userID = ?';
+            $customer = $db->fetchRow($sql, array($this->session->sUserId));
+
+            $customer = \Stripe\Customer::create(array(
+                "source" => $token,
+                "email" => $this->session->sUserMail,
+                "description" => implode(' ', $customer)
+            ));
+            $customerId = $customer->id;
+            unset($this->session->stripeToken);
+        } else {
+            $this->session->stripeToken = $token;
+            $customerId = null;
         }
+        $db->update(
+            's_user_attributes',
+            array('viison_stripe_customer_id' => $customerId),
+            array('userID =' .(int)$this->session->sUserId)
+        );
     }
 
     public function onGetControllerPathPaymentStripe()
