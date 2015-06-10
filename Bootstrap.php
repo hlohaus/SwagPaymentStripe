@@ -153,10 +153,10 @@ class Shopware_Plugins_Frontend_SwagPaymentStripe_Bootstrap extends Shopware_Com
         $this->get('events')->addSubscriber($subscriber);
 
         if ($request->getModuleName() == 'frontend') {
-            $subscriber = new Subscriber\Account($this);
-            $this->get('events')->addSubscriber($subscriber);
-
             $subscriber = new Subscriber\Checkout($this);
+            $this->get('events')->addSubscriber($subscriber);
+        } elseif ($request->getModuleName() == 'backend') {
+            $subscriber = new Subscriber\Backend($this);
             $this->get('events')->addSubscriber($subscriber);
         }
     }

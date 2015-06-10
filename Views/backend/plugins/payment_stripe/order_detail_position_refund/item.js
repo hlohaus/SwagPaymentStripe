@@ -2,7 +2,7 @@
  * A model, which represents a simple version of an order item, which are used
  * to refund some of the items of an order.
  */
-Ext.define('Shopware.apps.ViisonStripe.Order.model.detail.position.refund.Item', {
+Ext.define('Shopware.apps.PaymentStripe.Order.model.detail.position.refund.Item', {
 
 	extend : 'Ext.data.Model',
 

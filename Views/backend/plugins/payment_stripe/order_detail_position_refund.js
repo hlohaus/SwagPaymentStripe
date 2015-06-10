@@ -1,7 +1,7 @@
-//{namespace name=backend/plugins/viison_stripe/order_detail_position_refund}
+//{namespace name=backend/plugins/payment_stripe/order_detail_position_refund}
 
 //{block name="backend/order/view/detail/position" append}
-Ext.define('Shopware.apps.ViisonStripe.Order.view.detail.Position', {
+Ext.define('Shopware.apps.PaymentStripe.Order.view.detail.Position', {
 
 	override: 'Shopware.apps.Order.view.detail.Position',
 
@@ -14,7 +14,7 @@ Ext.define('Shopware.apps.ViisonStripe.Order.view.detail.Position', {
 			 * Event will be fired when the user clicks the 'refund positions' button.
 			 *
 			 * @event openRefundWindow
-			 * @param [Shopware.apps.ViisonStripe.Order.view.detail.Position] grid
+			 * @param [Shopware.apps.PaymentStripe.Order.view.detail.Position] grid
 			 */
 			'openRefundWindow'
 		);
@@ -31,9 +31,9 @@ Ext.define('Shopware.apps.ViisonStripe.Order.view.detail.Position', {
 		var toolbar = this.callParent(arguments);
 
 		// Check if the order was payed with Stripe
-		if (this.record.getPaymentStore.first().raw.action === 'viison_stripe_payment') {
+		if (this.record.getPaymentStore.first().raw.action === 'payment_stripe') {
 			// Add the refund button
-			this.viisonStripeRefundPositionButton = Ext.create('Ext.button.Button', {
+			this.PaymentStripeRefundPositionButton = Ext.create('Ext.button.Button', {
 				iconCls: 'sprite-money--minus',
 				text: '{s name=order/view/detail/position/refund_button}{/s}',
 				disabled: true,
@@ -42,7 +42,7 @@ Ext.define('Shopware.apps.ViisonStripe.Order.view.detail.Position', {
 					this.fireEvent('openRefundWindow', this);
 				}
 			});
-			toolbar.add(this.viisonStripeRefundPositionButton);
+			toolbar.add(this.PaymentStripeRefundPositionButton);
 		}
 
 		return toolbar;
@@ -59,9 +59,9 @@ Ext.define('Shopware.apps.ViisonStripe.Order.view.detail.Position', {
 
 		// Listen on changes in the selection model
 		positionGrid.selModel.addListener('selectionchange', function (model, records) {
-			if (this.viisonStripeRefundPositionButton !== undefined) {
+			if (this.PaymentStripeRefundPositionButton !== undefined) {
 				// Enable/disable the refund button based on the selection
-				this.viisonStripeRefundPositionButton.setDisabled(records.length === 0);
+				this.PaymentStripeRefundPositionButton.setDisabled(records.length === 0);
 			}
 		}, this);
 
@@ -73,10 +73,10 @@ Ext.define('Shopware.apps.ViisonStripe.Order.view.detail.Position', {
 
 //{block name="backend/order/controller/detail" append}
 	// Include the refund model and window
-	//{include file="backend/plugins/viison_stripe/order_detail_position_refund/item.js"}
-	//{include file="backend/plugins/viison_stripe/order_detail_position_refund/window.js"}
+	//{include file="backend/plugins/payment_stripe/order_detail_position_refund/item.js"}
+	//{include file="backend/plugins/payment_stripe/order_detail_position_refund/window.js"}
 
-Ext.define('Shopware.apps.ViisonStripe.Order.controller.Detail', {
+Ext.define('Shopware.apps.PaymentStripe.Order.controller.Detail', {
 
 	override: 'Shopware.apps.Order.controller.Detail',
 
@@ -88,7 +88,7 @@ Ext.define('Shopware.apps.ViisonStripe.Order.controller.Detail', {
 			'order-detail-window order-position-panel': {
 				openRefundWindow: this.onOpenRefundWindow
 			},
-			'viison-stripe-refund-window': {
+			'payment-stripe-refund-window': {
 				performRefund: this.onPerformRefund
 			}
 		});
@@ -123,7 +123,7 @@ Ext.define('Shopware.apps.ViisonStripe.Order.controller.Detail', {
 
 		// Create a new store with the collected positions
 		var store = Ext.create('Ext.data.Store', {
-			model: 'Shopware.apps.ViisonStripe.Order.model.detail.position.refund.Item',
+			model: 'Shopware.apps.PaymentStripe.Order.model.detail.position.refund.Item',
 			data: data
 		});
 
@@ -136,7 +136,7 @@ Ext.define('Shopware.apps.ViisonStripe.Order.controller.Detail', {
 		});
 
 		// Create and open a new window with the store, columns and total amount
-		var refundWindow = Ext.create('Shopware.apps.ViisonStripe.Order.view.detail.position.refund.Window', {
+		var refundWindow = Ext.create('Shopware.apps.PaymentStripe.Order.view.detail.position.refund.Window', {
 			orderRecord: positionPanel.record,
 			store: store,
 			gridColumns: gridColumns,
@@ -165,7 +165,7 @@ Ext.define('Shopware.apps.ViisonStripe.Order.controller.Detail', {
 		// Create the refund
 		refundWindow.loadMask.show();
 		Ext.Ajax.request({
-			url: '{url controller="ViisonStripePayment" action="refund"}',
+			url: '{url controller=PaymentStripe action=refund}',
 			jsonData: {
 				orderId: refundWindow.orderRecord.get('id'),
 				amount: refundWindow.total,
@@ -182,7 +182,7 @@ Ext.define('Shopware.apps.ViisonStripe.Order.controller.Detail', {
 					var communicationPanel = Ext.ComponentQuery.query('order-detail-window order-communication-panel')[0];
 					communicationPanel.internalTextArea.setValue(responseObject.internalComment);
 					// Show a growl notification and close the window
-					Shopware.Notification.createGrowlMessage('{s name=order/controller/detail/success_notification/title}{/s}', '{s name=order/controller/detail/success_notification/message}{/s}', 'viison-stripe-refund');
+					Shopware.Notification.createGrowlMessage('{s name=order/controller/detail/success_notification/title}{/s}', '{s name=order/controller/detail/success_notification/message}{/s}', 'payment-stripe-refund');
 					refundWindow.close()
 				} else {
 					// Show an alert

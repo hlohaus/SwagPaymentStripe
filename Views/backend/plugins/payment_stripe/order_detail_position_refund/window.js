@@ -1,14 +1,14 @@
-//{namespace name=backend/plugins/viison_stripe/order_detail_position_refund}
+//{namespace name=backend/plugins/payment_stripe/order_detail_position_refund}
 
 /**
  * A simple window, displaying a list of the selected psitions as well as their total
  * value and a field for adding a comment to the refund transaction.
  */
-Ext.define('Shopware.apps.ViisonStripe.Order.view.detail.position.refund.Window', {
+Ext.define('Shopware.apps.PaymentStripe.Order.view.detail.position.refund.Window', {
 
 	extend: 'Ext.window.Window',
 
-	alias: 'widget.viison-stripe-refund-window',
+	alias: 'widget.payment-stripe-refund-window',
 	title: '{s name=order/view/detail/position/refund/window/title}{/s}',
 	modal: true,
 	height: 440,

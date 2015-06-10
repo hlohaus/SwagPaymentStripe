@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -25,21 +25,6 @@ class Shopware_Controllers_Frontend_PaymentStripe extends Shopware_Controllers_F
     {
         $this->plugin = $this->get('plugins')->Frontend()->SwagPaymentStripe();
         $this->session = $this->get('session');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function get($name)
-    {
-        if (version_compare(Shopware::VERSION, '4.2.0', '<') && Shopware::VERSION != '___VERSION___') {
-            if($name == 'pluginlogger') {
-                $name = 'log';
-            }
-            $name = ucfirst($name);
-            return Shopware()->Bootstrap()->getResource($name);
-        }
-        return parent::get($name);
     }
 
     public function indexAction()
