@@ -42,7 +42,6 @@ class Backend implements SubscriberInterface
     {
         // Add View directory
         $view = $args->getSubject()->View();
-        $view->addTemplateDir(__DIR__ . '/../Views/');
         if ($args->getRequest()->getActionName() === 'load') {
             $view->extendsTemplate('backend/plugins/payment_stripe/order_detail_position_refund.js');
         }

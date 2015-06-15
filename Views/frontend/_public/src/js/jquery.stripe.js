@@ -34,7 +34,6 @@
 
             me.$button = $(opts.buttonSelector);
             me.$inputs = $el.find(opts.inputSelector);
-            me.$error = $el.find(opts.errorSelector);
             me.$useAccount = $el.find('#stripeUseAccount');
             me.$panel = $el.find('.stripe-panel');
 

@@ -25,11 +25,35 @@ class Shopware_Plugins_Frontend_SwagPaymentStripe_Bootstrap extends Shopware_Com
      */
     public function install()
     {
-        $this->createMyEvents();
-        $this->createMyForm();
-        $this->createMyPayment();
-        $this->createMyAttributes();
+        $this->createEvents();
+        $this->createForm();
+        $this->createStripePayment();
+        $this->createAttributes();
 
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function uninstall()
+    {
+        $this->secureUninstall();
+        $this->removeAttributes();
+
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function enable()
+    {
+        $payment = $this->getStripePayment();
+        if ($payment !== null) {
+            $payment->setActive(true);
+            $this->get('models')->flush($payment);
+        }
         return array(
             'success' => true,
             'invalidateCache' => array('config', 'backend', 'frontend')
@@ -39,11 +63,13 @@ class Shopware_Plugins_Frontend_SwagPaymentStripe_Bootstrap extends Shopware_Com
     /**
      * @return bool
      */
-    public function uninstall()
+    public function disable()
     {
-        $this->secureUninstall();
-        $this->removeMyAttributes();
-
+        $payment = $this->getStripePayment();
+        if ($payment !== null) {
+            $payment->setActive(false);
+            $this->get('models')->flush($payment);
+        }
         return array(
             'success' => true,
             'invalidateCache' => array('config', 'backend', 'frontend')
@@ -67,7 +93,7 @@ class Shopware_Plugins_Frontend_SwagPaymentStripe_Bootstrap extends Shopware_Com
         return $this->install();
     }
 
-    private function createMyEvents()
+    private function createEvents()
     {
         $this->subscribeEvent(
             'Enlight_Controller_Front_DispatchLoopStartup',
@@ -75,7 +101,7 @@ class Shopware_Plugins_Frontend_SwagPaymentStripe_Bootstrap extends Shopware_Com
         );
     }
 
-    private function createMyForm()
+    private function createForm()
     {
         $form = $this->Form();
 
@@ -93,9 +119,44 @@ class Shopware_Plugins_Frontend_SwagPaymentStripe_Bootstrap extends Shopware_Com
             'scope' => \Shopware\Models\Config\Element::SCOPE_SHOP,
             'stripCharsRe' => ' '
         ));
+
+        $this->addFormTranslations(require __DIR__ . '/Translations/Form.php');
     }
 
-    private function createMyAttributes()
+    private function registerPaymentTranslations()
+    {
+        $translations = require __DIR__ . '/Translations/Payment.php';
+        $shops = $this->getTranslationShops();
+        $module = new Shopware_Components_Translation();
+        $payment = $this->getStripePayment();
+        if ($payment !== null) {
+            foreach ($translations as $locale => $translation) {
+                if (isset($shops[$locale])) {
+                    $language = $shops[$locale];
+                    $module->write($language, 'config_payment', $payment->getId(), $translation, true);
+                }
+            }
+        }
+    }
+
+    private function getTranslationShops()
+    {
+        $sql = '
+            SELECT locale.locale, shop.id
+            FROM s_core_locales locale, s_core_shops shop
+
+            LEFT JOIN s_core_shops fallback
+            ON fallback.id = shop.fallback_id
+            AND fallback.id != shop.id
+            AND fallback.locale_id != shop.locale_id
+
+            WHERE shop.locale_id = locale.id
+            AND fallback.id IS NULL
+        ';
+        return $this->get('db')->fetchPairs($sql);
+    }
+
+    private function createAttributes()
     {
         /** @var $modelManager \Shopware\Components\Model\ModelManager */
         $modelManager = $this->get('models');
@@ -116,7 +177,7 @@ class Shopware_Plugins_Frontend_SwagPaymentStripe_Bootstrap extends Shopware_Com
         }
     }
 
-    private function removeMyAttributes()
+    private function removeAttributes()
     {
         /** @var $modelManager \Shopware\Components\Model\ModelManager */
         $modelManager = $this->get('models');
@@ -130,7 +191,7 @@ class Shopware_Plugins_Frontend_SwagPaymentStripe_Bootstrap extends Shopware_Com
         }
     }
 
-    private function createMyPayment()
+    private function createStripePayment()
     {
         $this->createPayment(array(
             'name' => 'stripe',
@@ -139,6 +200,14 @@ class Shopware_Plugins_Frontend_SwagPaymentStripe_Bootstrap extends Shopware_Com
             'action' => 'payment_stripe',
             'additionalDescription' => ''
         ));
+        $this->registerPaymentTranslations();
+    }
+
+    private function getStripePayment()
+    {
+        return $this->Payments()->findOneBy(
+            array('name' => 'stripe')
+        );
     }
 
     /**
