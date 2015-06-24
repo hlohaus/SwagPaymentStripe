@@ -142,14 +142,14 @@
                 opts = me.opts;
 
             // remove old messages
-            me.$el.find('.error').remove();
+            me.$el.find('.alert').remove();
 
             if (response.error) {
                 var $container = $('<div />').addClass(opts.errorContainerClass),
                     $content = $('<div />').addClass(opts.errorContentClass).text(response.error.message);
 
                 $container.append($content);
-                me.$el.append($container);
+                me.$el.prepend($container);
 
                 me.$button.attr('disabled', false);
             } else {

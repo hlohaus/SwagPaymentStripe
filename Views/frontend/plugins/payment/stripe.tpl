@@ -3,9 +3,11 @@
 
 {if $stripeCustomerId}
     <div class="stripe-customer">
+        {$card = $stripeSources[0]}
         <input type="checkbox" class="checkbox" checked="checked" value="1"
                id="stripeUseAccount" name="stripeUseAccount">
         <label class="has-account--label" for="stripeUseAccount">{s name=form/reuse_card}{/s}</label>
+        <span class="card--info">{s name=form/saved_card force}({$card.brand} endet auf {$card.last4}){/s}</span>
     </div>
 {/if}
     <div class="stripe-panel">
